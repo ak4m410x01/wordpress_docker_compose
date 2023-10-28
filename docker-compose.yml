@@ -1,0 +1,50 @@
+version: "3.3"
+
+name: wordpress
+
+services:
+  db:
+    container_name: db
+    hostname: db
+    image: mysql:8
+    volumes:
+      - dbDataVol:/var/lib/mysql
+    networks:
+      - serverSideNet
+    ports:
+      - "3306:3306"
+      - "33060:33060"
+
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+
+  web:
+    depends_on:
+      - db
+    container_name: web
+    hostname: web
+    image: wordpress:latest
+    volumes:
+      - webDataVol:/var/www/html
+    networks:
+      - clientSideNet
+      - serverSideNet
+    ports:
+      - "80:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+
+volumes:
+  dbDataVol: {}
+  webDataVol: {}
+
+networks:
+  clientSideNet:
+  serverSideNet:
+    external: false
